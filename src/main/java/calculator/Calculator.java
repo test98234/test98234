@@ -1,7 +1,7 @@
+package calculator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Deque;
 
 import ca.uqac.lif.bullwinkle.*;
 import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
@@ -10,8 +10,9 @@ import ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException;
 
 public class Calculator {
 	
-	
-	
+	/**
+	 * Calculates the integer result of an expression, or 
+	 */
     public Integer calculate(String input) {
     	
     	input = balanceTrailingParens(input);
@@ -23,7 +24,7 @@ public class Calculator {
     				"<mult> := mult( <exp> , <exp> );\n" +
     				"<div> := div( <exp> , <exp> );\n" + 
     				"<let> := let( <var> , <exp> , <exp> );\n" + 
-    				"<num> := ^[0-9]+;\n" + 
+    				"<num> := ^\\-?[0-9]+;\n" + 
     				"<var> := ^[A-Za-z]+;\n";
 			
 			InputStream stream = new ByteArrayInputStream(
@@ -33,7 +34,7 @@ public class Calculator {
 //			parser.setDebugMode(true);
 			ParseNode tree = parser.parse(input);
 			
-			MyBuilder builder = new MyBuilder();
+			CalculationBuilder builder = new CalculationBuilder();
 			Expression exp = builder.build(tree);
 			
 			return exp.result();
@@ -49,6 +50,8 @@ public class Calculator {
 			
 		} catch (NullPointerException e) {
 			// missing var
+		} catch (ArithmeticException e) {
+			// division by zero
 		}
 		
         return null;
@@ -75,54 +78,5 @@ public class Calculator {
 			return sb.toString();
 		}
 		return text;
-	}
-
-	public static class MyBuilder extends ParseTreeObjectBuilder<Expression>
-	{
-		
-		@Builds(rule = "<add>", pop = true, clean = true)
-		public Expression buildAdd(Object ... e)
-		{
-			return new Expression.Add((Expression) e[0], (Expression) e[1]);
-		}
-
-		@Builds(rule = "<sub>", pop = true, clean = true)
-		public Expression buildSub(Object ... e)
-		{
-			return new Expression.Sub((Expression) e[0], (Expression) e[1]);
-		}
-
-		@Builds(rule = "<mult>", pop = true, clean = true)
-		public Expression buildMult(Object ... e)
-		{
-			return new Expression.Mult((Expression) e[0], (Expression) e[1]);
-		}
-
-		@Builds(rule = "<div>", pop = true, clean = true)
-		public Expression buildDiv(Object ... e)
-		{
-			return new Expression.Div((Expression) e[0], (Expression) e[1]);
-		}
-
-		@Builds(rule = "<num>", pop = true)
-		public Expression buildNum(Object ... e)
-		{
-			return new Expression.Num(Integer.parseInt((String) e[0]));
-		}
-
-		@Builds(rule = "<let>", pop = true, clean = true)
-		public Expression buildLet(Object ... e)
-		{
-			return new Expression.Let(
-					(Expression.Var) e[0], 
-					(Expression) e[1],
-					(Expression) e[2]);
-		}
-
-		@Builds(rule = "<var>", pop = true)
-		public Expression buildVar(Object ... e)
-		{
-			return new Expression.Var((String) e[0]);
-		}
 	}
 }
