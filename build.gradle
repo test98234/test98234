@@ -1,0 +1,14 @@
+
+apply plugin: 'java-library'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+    
+    compile files('libs/bullwinkle.jar')
+}
+
