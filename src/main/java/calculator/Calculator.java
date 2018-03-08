@@ -2,58 +2,73 @@ package calculator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ca.uqac.lif.bullwinkle.*;
 import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
 import ca.uqac.lif.bullwinkle.BnfParser.ParseException;
 import ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException;
+import calculator.Expression.MissingContextException;
 
 public class Calculator {
+	public final static Logger LOGGER = Logger.getLogger(Calculator.class.getName());
 	
+	private final static String BNF = 
+			"<exp> := <add> | <sub> | <mult> | <div> | <num> | <let> | <var> ;\n" + 
+			"<add> := add( <exp> , <exp> );\n" + 
+			"<sub> := sub( <exp> , <exp> );\n" + 
+			"<mult> := mult( <exp> , <exp> );\n" +
+			"<div> := div( <exp> , <exp> );\n" + 
+			"<let> := let( <var> , <exp> , <exp> );\n" + 
+			"<num> := ^\\-?[0-9]+;\n" + 
+			"<var> := ^[A-Za-z]+;\n";
 	/**
 	 * Calculates the integer result of an expression, or 
 	 */
     public Integer calculate(String input) {
+    	LOGGER.fine("Starting calculation");
     	
     	input = balanceTrailingParens(input);
     	
     	try {
-    		String bnf = "<exp> := <add> | <sub> | <mult> | <div> | <num> | <let> | <var> ;\n" + 
-    				"<add> := add( <exp> , <exp> );\n" + 
-    				"<sub> := sub( <exp> , <exp> );\n" + 
-    				"<mult> := mult( <exp> , <exp> );\n" +
-    				"<div> := div( <exp> , <exp> );\n" + 
-    				"<let> := let( <var> , <exp> , <exp> );\n" + 
-    				"<num> := ^\\-?[0-9]+;\n" + 
-    				"<var> := ^[A-Za-z]+;\n";
-			
+    		LOGGER.fine("Parsing tree");
 			InputStream stream = new ByteArrayInputStream(
-					bnf.getBytes(StandardCharsets.UTF_8));
-			
+					BNF.getBytes(StandardCharsets.UTF_8));			
 			BnfParser parser = new BnfParser(stream);
-//			parser.setDebugMode(true);
+			parser.setDebugMode(true, LOGGER); // produces INFO messages
 			ParseNode tree = parser.parse(input);
-			
+
+    		LOGGER.fine("Building expression");
 			CalculationBuilder builder = new CalculationBuilder();
 			Expression exp = builder.build(tree);
-			
-			return exp.result();
+
+    		LOGGER.fine("Computing result");
+			int result = exp.result();
+
+	    	LOGGER.fine("Finished calculation");
+			return result;
 			
 		} catch (InvalidGrammarException e) {
-			e.printStackTrace();
+			// should never happen, grammar is fixed
+			LOGGER.log(Level.SEVERE, "Could not parse grammar", e);
 			
 		} catch (ParseException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Could not parse expression", e);
 			
 		} catch (BuildException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Error building expression tree, "
+					+ "please check that your syntax is correct", e);
 			
-		} catch (NullPointerException e) {
-			// missing var
+		} catch (MissingContextException e) {
+			LOGGER.severe(e.getMessage());
+			
 		} catch (ArithmeticException e) {
-			// division by zero
+			LOGGER.severe(e.getMessage());
+			
 		}
-		
+
+		LOGGER.fine("Calculation returning null");
         return null;
     }
     
@@ -76,6 +91,9 @@ public class Calculator {
 				sb.append(")");
 			}
 			return sb.toString();
+		}
+		if (counter < 0) {
+			LOGGER.severe("Parenthesis are not balanced");
 		}
 		return text;
 	}

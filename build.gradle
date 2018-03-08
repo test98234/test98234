@@ -14,6 +14,10 @@ dependencies {
     
     // Bullwinkle on-the-fly parser for BNF grammars
     compile files('libs/bullwinkle.jar')
+    
+    // Command line args parsing
+	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    
 }
 
 

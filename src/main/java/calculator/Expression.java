@@ -102,7 +102,25 @@ public abstract class Expression {
 		}
 		@Override
 		public int result(Map<String, Integer> context) {
-			return context.get(var);
+			Integer value = context.get(var);
+			if (value == null) {
+				throw new MissingContextException(var);
+			}
+			return value;
 		}
+	}
+	
+	/**
+	 * Exception thrown if variable is not present in the context
+	 * defined by a prior 'let'.
+	 */
+	public static class MissingContextException extends RuntimeException {
+		public MissingContextException(String var) {
+			super("Invalid expression, '" 
+					+ var
+					+ "' was not defined by a 'let'");
+		}
+
+		private static final long serialVersionUID = -4363949632760910132L;
 	}
 }
