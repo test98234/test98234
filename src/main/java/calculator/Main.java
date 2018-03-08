@@ -1,6 +1,5 @@
 package calculator;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -12,7 +11,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-
+/**
+ * Runs the calculator from the command line.
+ */
 public class Main {
 	private static Options options = new Options();
 	static {
@@ -22,8 +23,6 @@ public class Main {
 	
 	
 	/**
-	 * Runs the calculator.
-	 * 
 	 * @param args Arguments are a list of expressions to evaluate
 	 */
 	public static void main(String[] args) {
@@ -36,6 +35,7 @@ public class Main {
 				return;
 			}
 			
+			// set up log level
 			String logLevel = cmd.getOptionValue('l');
 			if ("DEBUG".equals(logLevel)) {
 				setLogLevel(Level.ALL);
@@ -46,6 +46,8 @@ public class Main {
 			} else {
 				setLogLevel(Level.OFF);
 			}
+			
+			// perform calculations
 			
 			Calculator c = new Calculator();
 			
@@ -63,10 +65,16 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Sets the log level for related loggers.
+	 */
 	private static void setLogLevel(Level level) {
 		Calculator.LOGGER.setLevel(level);
 	}
 
+	/**
+	 * Prints a message, followed by help.
+	 */
 	private static void printHelp(String string) {
 		if (string != null) {
 			System.out.println(string);

@@ -2,12 +2,23 @@ package calculator;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Expressions that form an expression tree. An
+ * expression can be queried for an integer result.
+ */
 public abstract class Expression {
 	
 	public int result() {
 		return this.result(new HashMap<String, Integer>());
 	}
 
+	/**
+	 * The result of the particular expression subtree,
+	 * given a certain context. The context is created
+	 * using the Let expression. A MissingContextException
+	 * is thrown if a variable cannot be found in the
+	 * provided context.
+	 */
 	public abstract int result(Map<String, Integer> context);
 	
 	public static class Add extends Expression {
@@ -86,6 +97,14 @@ public abstract class Expression {
 			this.left = left;
 			this.right = right;
 		}
+		
+		/**
+		 * Given a variable name, and a pair of expressions, determine
+		 * the value of the variable name based on the left expression,
+		 * and pass in a new context including that name with that value
+		 * into the evaluation for the right expression, and return the
+		 * result of that evaluation.
+		 */
 		@Override
 		public int result(Map<String, Integer> context) {
 			int value = left.result(context);
@@ -100,6 +119,11 @@ public abstract class Expression {
 		public Var(String var) {
 			this.var = var;
 		}
+		/**
+		 * Get the value of this variable in the context,
+		 * or throw a MissingContextException if not
+		 * present.
+		 */
 		@Override
 		public int result(Map<String, Integer> context) {
 			Integer value = context.get(var);
