@@ -1,5 +1,8 @@
+apply plugin: 'java'
 
-apply plugin: 'java-library'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
 
 repositories {
     jcenter()
@@ -9,6 +12,16 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     
+    // Bullwinkle on-the-fly parser for BNF grammars
     compile files('libs/bullwinkle.jar')
 }
 
+
+jar {
+	manifest {
+        attributes 'Implementation-Title': 'Calculator',
+        	'Implementation-Version': version,
+        	'Main-Class': 'calculator.Main'
+    }
+    from { (configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) } }
+}

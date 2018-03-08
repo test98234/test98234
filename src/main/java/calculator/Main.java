@@ -1,13 +1,16 @@
 package calculator;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Main {
 	/**
 	 * Runs the calculator.
 	 * 
-	 * @param args Arguments are a list of strings to calculate 
+	 * @param args Arguments are a list of expressions to evaluate
 	 */
 	public static void main(String[] args) {
-		// java -classpath "bin;libs/bullwinkle.jar" calculator.Main "add(2, 2)"
 		
 		if (args.length == 0) {
 			System.out.println("Please pass in expressions as arguments.");
@@ -16,10 +19,9 @@ public class Main {
 		
 		Calculator c = new Calculator();
 		
-		Integer[] results = new Integer[args.length];
-		for (int i = 0; i < args.length; i++) {
-			results[i] = c.calculate(args[i]);
-		}
+		List<Integer> results = Arrays.stream(args)
+				.map(expression -> c.calculate(expression))
+				.collect(Collectors.toList());
 		
 		for (Integer r : results) {
 			System.out.println(r != null ? r : "Calculation failed.");
