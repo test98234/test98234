@@ -4,6 +4,6 @@ To build:
 	
 	./gradlew build
 
-To execute:
+To execute (pre-compiled jar at root):
 
-	java -jar .\build\libs\test98234-1.0.jar "add(2, 2)" "123"    
+	java -jar calculator.jar "add(2, 2)" "123"    
